@@ -7,9 +7,10 @@ import { openModal, closeModal } from "./modal.js";
 const formAddCard = document.querySelector(".popup__form[name='new-place']");
 const inputCardName = formAddCard.querySelector(".popup__input_type_card-name");
 const inputCardLink = formAddCard.querySelector(".popup__input_type_url");
+const addCardPopup = document.querySelector(".popup_type_new-card");
 
 // DOM Elements for Profile Editing
-const formElement = document.querySelector(".popup__form");
+const formEditProfile = document.querySelector(".popup__form[name='edit-profile']");
 const nameInput = document.querySelector(".popup__input_type_name");
 const jobInput = document.querySelector(".popup__input_type_description");
 
@@ -52,23 +53,8 @@ popupCloseButtons.forEach((button) => {
   });
 });
 
-document.addEventListener("click", (event) => {
-  if (event.target.classList.contains("popup")) {
-    closeModal(event.target);
-  }
-});
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    const openedPopup = document.querySelector(".popup_is-opened");
-    if (openedPopup) {
-      closeModal(openedPopup);
-    }
-  }
-});
-
 addButton.addEventListener("click", () =>
-  openModal(document.querySelector(".popup_type_new-card"))
+  openModal(addCardPopup)
 );
 
 editProfileButton.addEventListener("click", () => {
@@ -77,7 +63,7 @@ editProfileButton.addEventListener("click", () => {
   openModal(editProfilePopup);
 });
 
-formElement.addEventListener("submit", (evt) => {
+formEditProfile.addEventListener("submit", (evt) => {
   evt.preventDefault();
   profileName.textContent = nameInput.value;
   profileJob.textContent = jobInput.value;
@@ -98,6 +84,6 @@ formAddCard.addEventListener("submit", (evt) => {
     );
     containerCards.prepend(newCard);
     formAddCard.reset();
-    closeModal(document.querySelector(".popup_type_new-card"));
+    closeModal(addCardPopup);
   }
 });
