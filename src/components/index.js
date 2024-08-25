@@ -7,35 +7,35 @@ import { openModal, closeModal } from "./modal.js";
 const formAddCard = document.querySelector(".popup__form[name='new-place']");
 const inputCardName = formAddCard.querySelector(".popup__input_type_card-name");
 const inputCardLink = formAddCard.querySelector(".popup__input_type_url");
-const addCardPopup = document.querySelector(".popup_type_new-card");
 
 // DOM Elements for Profile Editing
 const formEditProfile = document.querySelector(".popup__form[name='edit-profile']");
-const nameInput = document.querySelector(".popup__input_type_name");
-const jobInput = document.querySelector(".popup__input_type_description");
-
-const profileName = document.querySelector(".profile__title");
-const profileJob = document.querySelector(".profile__description");
-const editProfileButton = document.querySelector(".profile__edit-button");
-const popupCloseButtons = document.querySelectorAll(".popup__close");
-const editProfilePopup = document.querySelector(".popup_type_edit");
+const nameInput = formEditProfile.querySelector(".popup__input_type_name");
+const jobInput = formEditProfile.querySelector(".popup__input_type_description");
 
 // DOM Elements for Content and Cards
 const content = document.querySelector(".content");
 const addButton = content.querySelector(".profile__add-button");
 const containerCards = content.querySelector(".places__list");
+const profileName = content.querySelector(".profile__title");
+const profileJob = content.querySelector(".profile__description");
+const editProfileButton = content.querySelector(".profile__edit-button");
 
 // DOM Elements for Image Popup
-const imagePopup = document.querySelector(".popup_type_image");
-const popupImage = imagePopup.querySelector(".popup__image");
-const popupCaption = imagePopup.querySelector(".popup__caption");
+const popupTypeImage = document.querySelector(".popup_type_image");
+const popupImage = popupTypeImage.querySelector(".popup__image");
+const popupCaption = popupTypeImage.querySelector(".popup__caption");
+
+const addCardPopup = document.querySelector(".popup_type_new-card");
+const popupCloseButtons = document.querySelectorAll(".popup__close");
+const editProfilePopup = document.querySelector(".popup_type_edit");
 
 // Functions
 function openImagePopup(cardData) {
   popupImage.src = cardData.link;
   popupImage.alt = cardData.name;
   popupCaption.textContent = cardData.name;
-  openModal(imagePopup);
+  openModal(popupTypeImage);
 }
 
 // Initialization
