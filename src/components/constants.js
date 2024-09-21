@@ -15,7 +15,6 @@ export const editAddButton = document.querySelector(".profile__add-button");
 //Popup удаления карточки
 export const popupDeleteQuestion = document.querySelector(".popup_type_question");
 export const closeButtonQuestion = popupDeleteQuestion.querySelector(".popup__close");
-export const submitDeleteButton = document.querySelector('form[name="card-delete"');
 
 //Профиль пользователя
 export const profilePopup = document.querySelector(".popup_type_edit");
@@ -40,3 +39,9 @@ export const jobInput = formEditProfile.elements.description;
 export const nameNewCard = formNewCard.elements["place-name"];
 export const imageNewCard = document.getElementById("new-place-url-input");
 export const imageAvatarNew = document.getElementById("avatar-url-input");
+
+// Кнопки при загрузке страницы
+export const profileSubmitButton = profilePopup.querySelector(".popup__button");
+export const popupAvatarSubmitButton = profilePopupAvatar.querySelector(".popup__button");
+export const submitButtonNewCard = formNewCard.querySelector(".popup__button");
+export const submitDeleteButton = popupDeleteQuestion.querySelector(".popup__button-question");
