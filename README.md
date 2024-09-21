@@ -28,9 +28,3 @@
  [Я сделаль](https://TaraBura.github.io/mesto-project-ff)
  
 <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExeThpbzgxMmY5NjNzNnp5MHVtd3dhdnFzbThwYnNzbWtnbWlreTZ0dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/smGCEo5zsAXtK4bqAT/giphy.gif" width="600" height="600"/>
-
-
-
- [Я сделаль](https://TaraBura.github.io/mesto-project-ff)
- 
-<img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExeThpbzgxMmY5NjNzNnp5MHVtd3dhdnFzbThwYnNzbWtnbWlreTZ0dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/smGCEo5zsAXtK4bqAT/giphy.gif" width="600" height="600"/>
