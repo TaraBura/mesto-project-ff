@@ -15,7 +15,9 @@ export function clearValidation(formElement, configValidation) {
   const inputList = Array.from(
     formElement.querySelectorAll(configValidation.inputList)
   );
-  const buttonElement = formElement.querySelector(configValidation.buttonElement);
+  const buttonElement = formElement.querySelector(
+    configValidation.buttonElement
+  );
   // Очистка ошибок валидации для каждого поля
   inputList.forEach((inputElement) => {
     hideInputError(formElement, inputElement, configValidation);
@@ -91,18 +93,12 @@ const hasInvalidInput = (inputList) => {
 };
 
 // Функция принимает массив полей и элемент кнопки
-const toggleButtonState = (
-  inputList,
-  buttonElement,
-  configValidation
-) => {
+const toggleButtonState = (inputList, buttonElement, configValidation) => {
   if (hasInvalidInput(inputList)) {
     buttonElement.disabled = true;
     buttonElement.classList.add(configValidation.buttonElementDisabled);
   } else {
     buttonElement.disabled = false;
-    buttonElement.classList.remove(
-      configValidation.buttonElementDisabled
-    );
+    buttonElement.classList.remove(configValidation.buttonElementDisabled);
   }
 };

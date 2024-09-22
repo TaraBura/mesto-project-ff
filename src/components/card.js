@@ -29,7 +29,9 @@ export function createCard(
   if (cardImage) {
     cardImage.src = cardData.link;
     cardImage.alt = cardData.name;
-    cardImage.addEventListener("click", openImagePopup);
+    cardImage.addEventListener("click", () =>
+      openImagePopup(cardData.link, cardData.name)
+    );
   } else {
     console.error("Элемент с классом .card__image не найден в карточке.");
   }
@@ -68,11 +70,7 @@ export function createCard(
     }
     if (cardData.owner._id === userId) {
       deleteButton.addEventListener("click", () =>
-        openSubmitDeletePopup(
-          cardData._id,
-          () => deleteCard(cardData._id),
-          newCard
-        )
+        openSubmitDeletePopup(cardData._id, newCard)
       );
     }
   } else {
@@ -86,7 +84,12 @@ export function createCard(
 
 // Функция удаления карточки
 function deleteCard(id) {
-  return removeMyCard(id);
+  return removeMyCard(id).then(() => {
+    currentCardElement.remove(); // Удаляем карточку из DOM
+    closeModal(popupDeleteQuestion); // Закрываем модальное окно
+    currentCardId = null; // Сбрасываем текущие данные
+    currentCardElement = null;
+  });
 }
 
 // Функция постановки или удаления лайка на карточке

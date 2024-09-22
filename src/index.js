@@ -1,9 +1,5 @@
-// Импорт стилей
+// Импорты
 import "./pages/index.css";
-import "./vendor/fonts.css";
-import "./vendor/normalize.css";
-
-// Импорт функций и констант из модулей
 import { createCard } from "./components/card.js";
 import { openModal, closeModal } from "./components/modal.js";
 import { enableValidation, clearValidation } from "./components/validation.js";
@@ -14,6 +10,7 @@ import {
   displayCard,
   editProfile,
   editAvatar,
+  removeMyCard,
 } from "./components/api.js";
 import {
   cardTemplate,
@@ -27,7 +24,6 @@ import {
   editAddButton,
   popupDeleteQuestion,
   closeButtonQuestion,
-  submitDeleteButton,
   profilePopup,
   profilePopupCloseButton,
   editProfileButton,
@@ -43,12 +39,33 @@ import {
   jobInput,
   nameNewCard,
   imageNewCard,
-  imageAvatarNew
+  imageAvatarNew,
+  profileSubmitButton,
+  popupAvatarSubmitButton,
+  submitButtonNewCard,
+  submitDeleteButton,
 } from "./components/constants.js";
 
-let userId; // Переменная для хранения идентификатора пользователя
+// Глобальные переменные
+// Переменная для хранения идентификатора пользователя
+let userId;
 
-// Загружаем данные пользователя и начальные карточки
+// Переменные для хранения текущих cardId и cardElement
+let currentCardId = null;
+let currentCardElement = null;
+
+// Конфигурация валидатора форм
+const configValidation = {
+  formList: ".popup__form",
+  inputList: ".popup__input",
+  buttonElement: ".popup__button",
+  buttonElementDisabled: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__error_visible",
+};
+
+// Объявление функций
+// Функция загрузки данных пользователя и начальных карточек
 function getData() {
   Promise.all([getUserInfo(), getInitialCards()])
     .then(([profileUser, initialCards]) => {
@@ -75,15 +92,6 @@ function getData() {
     })
     .catch((error) => console.error("Ошибка при загрузке данных:", error));
 }
-getData();
-
-// Открытие модального окна редактирования профиля и подстановка текущих данных
-editProfileButton.addEventListener("click", () => {
-  nameInput.value = profileName.textContent;
-  jobInput.value = profileJob.textContent;
-  clearValidation(profilePopup, configValidation);
-  openModal(profilePopup);
-});
 
 // Обработчик отправки формы редактирования профиля
 function handleFormEdit(evt) {
@@ -91,38 +99,21 @@ function handleFormEdit(evt) {
   const newName = nameInput.value.trim();
   const newJob = jobInput.value.trim();
 
-  // Дополнительная валидация перед отправкой (опционально)
-  if (!newName || !newJob) {
-    alert("Поля имени и должности не могут быть пустыми.");
-    return;
-  }
-
-  const submitButton = profilePopup.querySelector(".popup__button");
-  renderLoading(true, submitButton); // Отображаем индикатор загрузки
+  renderLoading(true, profileSubmitButton); // Отображаем индикатор загрузки
 
   editProfile(newName, newJob)
     .then((res) => {
-      profileName.textContent = res.name;    // Обновляем имя пользователя
-      profileJob.textContent = res.about;    // Обновляем описание пользователя
-      closeModal(profilePopup);              // Закрываем модальное окно
+      profileName.textContent = res.name; // Обновляем имя пользователя
+      profileJob.textContent = res.about; // Обновляем описание пользователя
+      closeModal(profilePopup); // Закрываем модальное окно
     })
     .catch((error) => {
       console.error("Ошибка при обновлении профиля:", error);
-      alert("Не удалось обновить профиль. Пожалуйста, попробуйте позже.");
     })
     .finally(() => {
-      renderLoading(false, submitButton);    // Скрываем индикатор загрузки
+      renderLoading(false, profileSubmitButton); // Скрываем индикатор загрузки
     });
 }
-
-// Подключение обработчика события отправки формы редактирования профиля
-formEditProfile.addEventListener("submit", handleFormEdit);
-
-// Обработчик закрытия модального окна редактирования профиля
-profilePopupCloseButton.addEventListener("click", () => {
-  formEditProfile.reset();                   // Сбрасываем форму
-  closeModal(profilePopup);                  // Закрываем модальное окно
-});
 
 // Обработчик отправки формы добавления новой карточки
 function handleImageForm(evt) {
@@ -130,14 +121,7 @@ function handleImageForm(evt) {
   const name = nameNewCard.value.trim();
   const link = imageNewCard.value.trim();
 
-  // Дополнительная валидация (опционально)
-  if (!name || !link) {
-    alert("Поля названия и ссылки не могут быть пустыми.");
-    return;
-  }
-
-  const submitButton = formNewCard.querySelector(".popup__button");
-  renderLoading(true, submitButton); // Отображаем индикатор загрузки
+  renderLoading(true, submitButtonNewCard); // Отображаем индикатор загрузки
 
   displayCard(name, link)
     .then((card) => {
@@ -148,138 +132,154 @@ function handleImageForm(evt) {
         userId,
         openSubmitDeletePopup
       );
-      containerCards.prepend(cardElement);      // Добавляем карточку в начало списка
-      formNewCard.reset();                       // Сбрасываем форму
+      containerCards.prepend(cardElement); // Добавляем карточку в начало списка
+      formNewCard.reset(); // Сбрасываем форму
       clearValidation(newCardPopup, configValidation); // Очищаем валидацию
-      closeModal(newCardPopup);                  // Закрываем модальное окно
+      closeModal(newCardPopup); // Закрываем модальное окно
     })
     .catch((error) => {
       console.error("Ошибка при добавлении карточки:", error);
-      alert("Не удалось добавить карточку. Пожалуйста, попробуйте позже.");
     })
     .finally(() => {
-      renderLoading(false, submitButton);        // Скрываем индикатор загрузки
+      renderLoading(false, submitButtonNewCard); // Скрываем индикатор загрузки
     });
 }
-
-// Подключение обработчика события отправки формы добавления новой карточки
-formNewCard.addEventListener("submit", handleImageForm);
-
-// Обработчик открытия модального окна добавления новой карточки
-editAddButton.addEventListener("click", () => {
-  openModal(newCardPopup);
-});
-
-// Обработчик закрытия модального окна добавления новой карточки
-newCardPopupCloseButton.addEventListener("click", () => {
-  formNewCard.reset();                         // Сбрасываем форму
-  clearValidation(newCardPopup, configValidation); // Очищаем валидацию
-  closeModal(newCardPopup);                    // Закрываем модальное окно
-});
 
 // Обработчик отправки формы обновления аватара
 function handleImageAvatar(evt) {
   evt.preventDefault();
   const newAvatar = imageAvatarNew.value.trim();
 
-  // Дополнительная валидация (опционально)
-  if (!newAvatar) {
-    alert("Поле ссылки на аватар не может быть пустым.");
-    return;
-  }
-
-  const submitButton = profilePopupAvatar.querySelector(".popup__button");
-  renderLoading(true, submitButton);           // Отображаем индикатор загрузки
+  renderLoading(true, popupAvatarSubmitButton); // Отображаем индикатор загрузки
 
   editAvatar(newAvatar)
     .then((res) => {
       // Устанавливаем новое изображение аватара
       profileImage.style.backgroundImage = `url('${res.avatar}')`;
-      formNewAvatar.reset();                     // Сбрасываем форму
+      formNewAvatar.reset(); // Сбрасываем форму
       clearValidation(formNewAvatar, configValidation); // Очищаем валидацию
-      closeModal(profilePopupAvatar);           // Закрываем модальное окно
+      closeModal(profilePopupAvatar); // Закрываем модальное окно
     })
     .catch((error) => {
       console.error("Ошибка при обновлении аватара:", error);
-      alert("Не удалось обновить аватар. Пожалуйста, попробуйте позже.");
     })
     .finally(() => {
-      renderLoading(false, submitButton);        // Скрываем индикатор загрузки
+      renderLoading(false, popupAvatarSubmitButton); // Скрываем индикатор загрузки
     });
 }
 
-// Подключение обработчика события отправки формы обновления аватара
-formNewAvatar.addEventListener("submit", handleImageAvatar);
+// Открытие изображения карточки на весь экран
+function openImagePopup(link, name) {
+  popupImage.src = link;
+  popupImage.alt = name;
+  popupCaption.textContent = name;
+  openModal(popupTypeImage);
+}
+
+// Функция открытия модального окна для удаления карточки
+function openSubmitDeletePopup(cardId, cardElement) {
+  currentCardId = cardId; // Сохраняем текущий ID карточки
+  currentCardElement = cardElement; // Сохраняем текущий элемент карточки
+  openModal(popupDeleteQuestion);
+}
+
+// Обработчик события удаления карточки
+function handleRemoveMyCard(evt) {
+  evt.preventDefault();
+
+  if (!currentCardId || !currentCardElement) {
+    console.error("Нет информации о карточке для удаления.");
+    return;
+  }
+
+  renderLoading(true, submitDeleteButton, "Удаление...", "Да"); // Параметры текста загрузки и исходного текста кнопки
+
+  removeMyCard(currentCardId)
+    .then(() => {
+      currentCardElement.remove(); // Удаляем карточку из DOM
+      closeSubmitDeletePopup(); // Закрываем модальное окно
+    })
+    .catch((error) => {
+      console.error("Ошибка при удалении карточки:", error);
+    })
+    .finally(() => {
+      renderLoading(false, submitDeleteButton, "Удаление...", "Да"); // Возвращаем исходный текст кнопки
+      currentCardId = null; // Сбрасываем текущие данные
+      currentCardElement = null;
+    });
+}
+
+// Функция закрытия модального окна удаления карточки
+function closeSubmitDeletePopup() {
+  closeModal(popupDeleteQuestion);
+  currentCardId = null; // Сбрасываем текущие данные
+  currentCardElement = null;
+}
+
+// Навешивание слушателей событий
+// Открытие модального окна редактирования профиля и подстановка текущих данных
+editProfileButton.addEventListener("click", () => {
+  nameInput.value = profileName.textContent;
+  jobInput.value = profileJob.textContent;
+  clearValidation(profilePopup, configValidation);
+  openModal(profilePopup);
+});
+
+// Подключение обработчика события отправки формы редактирования профиля
+formEditProfile.addEventListener("submit", handleFormEdit);
+
+// Обработчик закрытия модального окна редактирования профиля
+profilePopupCloseButton.addEventListener("click", () => {
+  formEditProfile.reset(); // Сбрасываем форму
+  closeModal(profilePopup); // Закрываем модальное окно
+});
+
+// Обработчик открытия модального окна добавления новой карточки
+editAddButton.addEventListener("click", () => {
+  openModal(newCardPopup);
+});
+
+// Подключение обработчика события отправки формы добавления новой карточки
+formNewCard.addEventListener("submit", handleImageForm);
+
+// Обработчик закрытия модального окна добавления новой карточки
+newCardPopupCloseButton.addEventListener("click", () => {
+  formNewCard.reset(); // Сбрасываем форму
+  clearValidation(newCardPopup, configValidation); // Очищаем валидацию
+  closeModal(newCardPopup); // Закрываем модальное окно
+});
 
 // Обработчик открытия модального окна обновления аватара
 profileImage.addEventListener("click", () => {
   openModal(profilePopupAvatar);
 });
 
+// Подключение обработчика события отправки формы обновления аватара
+formNewAvatar.addEventListener("submit", handleImageAvatar);
+
 // Обработчик закрытия модального окна обновления аватара
 popupAvatarCloseButton.addEventListener("click", () => {
-  closeModal(profilePopupAvatar);                // Закрываем модальное окно
+  closeModal(profilePopupAvatar); // Закрываем модальное окно
   clearValidation(formNewAvatar, configValidation); // Очищаем валидацию
-  formNewAvatar.reset();                         // Сбрасываем форму
+  formNewAvatar.reset(); // Сбрасываем форму
 });
-
-// Открытие изображения карточки на весь экран
-function openImagePopup(evt) {
-  if (evt.target.classList.contains('card__image')) { // Проверяем, что клик был по изображению карточки
-    const cardImage = evt.target;
-    popupImage.src = cardImage.src;
-    popupImage.alt = cardImage.alt;
-    popupCaption.textContent = cardImage.alt;
-    openModal(popupTypeImage);
-  }
-}
 
 // Обработчик закрытия модального окна изображения
 popupImageCloseButton.addEventListener("click", () => {
   closeModal(popupTypeImage);
 });
 
-// Функция открытия модального окна для удаления карточки
-function openSubmitDeletePopup(cardId, deleteCard, cardElement) {
-  openModal(popupDeleteQuestion);
-  
-  // Добавляем обработчик события только один раз
-  submitDeleteButton.addEventListener(
-    "click",
-    () => {
-      deleteCard(cardId)
-        .then(() => {
-          closeSubmitDeletePopup();
-          cardElement.remove();
-        })
-        .catch((error) => {
-          console.log(error);
-          alert("Не удалось удалить карточку. Пожалуйста, попробуйте позже.");
-        });
-    },
-    { once: true }
-  );
-}
-
-// Функция закрытия модального окна удаления карточки
-function closeSubmitDeletePopup() {
-  closeModal(popupDeleteQuestion);
-}
+// Обработчик события удаления карточки
+submitDeleteButton.addEventListener("click", handleRemoveMyCard);
 
 // Обработчик закрытия модального окна подтверждения удаления карточки
 closeButtonQuestion.addEventListener("click", () => {
-  closeModal(popupDeleteQuestion);
+  closeSubmitDeletePopup();
 });
 
-// Конфигурация валидатора форм
-const configValidation = {
-  formList: ".popup__form",
-  inputList: ".popup__input",
-  buttonElement: ".popup__button",
-  buttonElementDisabled: "popup__button_disabled",
-  inputErrorClass: "popup__input_type_error",
-  errorClass: "popup__error_visible",
-};
-
+// Вызов функций
 // Инициализируем валидацию форм
 enableValidation(configValidation);
+
+// Загружаем данные пользователя и начальные карточки
+getData();
